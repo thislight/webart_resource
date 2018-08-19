@@ -14,3 +14,5 @@ abstract class RemoveableResource<K,T> extends Resource<K,T>{
 class ResourceNotFound extends Error{}
 
 class ResourceNotAccessible extends Error{}
+
+class RequestFormatError extends Error{}

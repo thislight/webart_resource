@@ -4,7 +4,7 @@ import 'package:webart/webart.dart';
 import './resource.dart';
 
 
-class ResourceHandler<T extends Resource<Map,Map>> extends RequestHandlerBase{
+class ResourceHandler<T extends Resource> extends RequestHandlerBase{
     bool _requiredVerify;
     bool isRemoveableResource;
     T resource;
@@ -38,6 +38,8 @@ class ResourceHandler<T extends Resource<Map,Map>> extends RequestHandlerBase{
         } on ResourceNotAccessible {
             _onResourceNotAccessible(request);
             return;
+        } on RequestFormatError {
+            request.response.error(400);
         } catch(e){
             _onUnkownError(request, e);
             return;
@@ -49,26 +51,35 @@ class ResourceHandler<T extends Resource<Map,Map>> extends RequestHandlerBase{
             request.response.error(401);
             return;
         }
-        Map query;
-        Map res;
+        Map changes;
         try {
             var json = await request.asJson();
-            query = json['target'];
-            res = json['resource'];
-            assert(query!=null);
-            assert(res!=null);
+            var query = json['target'] ?? json['query'] ?? json['key'];
+            var res = json['resource'] ?? json['data'] ?? json['value'];
+            if ((query == null) && (res == null)){
+                changes = json['changes'] ?? json['\$set'] ?? {};
+            } else {
+                changes = {};
+                changes[query] = res;
+            }
         } catch(e){
             request.response.error(400);
             return;
         }
         try{
-            await resource.save(query,res);
+            if(changes.isNotEmpty)
+                changes.forEach((query,res) async => await resource.save(query,res));
             request.response.ok({
                 'ok': true,
             });
         } on ResourceNotAccessible {
             _onResourceNotAccessible(request);
             return;
+        } on TypeError {
+            request.response.error(400);
+            return;
+        } on RequestFormatError {
+            request.response.error(400);
         } catch(e){
             _onUnkownError(request,e);
             return;

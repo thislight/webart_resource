@@ -3,7 +3,7 @@ import 'package:webart/webart.dart';
 import 'package:webart_resource/webart_resource.dart';
 
 
-class ExampleResource implements RemoveableResource<Map,Map>{
+class ExampleResource implements RemoveableResource{
     String address = "example";
     Map<String,Map<String,dynamic>> memories;
 
@@ -27,9 +27,8 @@ class ExampleResource implements RemoveableResource<Map,Map>{
   }
 
   @override
-  Future<dynamic> save(Map entry, Map res) async {
-    String key = entry['key'];
-    memories[key] = res;
+  Future<dynamic> save(String entry, Map res) async {
+    memories[entry] = res;
     return;
   }
 }
