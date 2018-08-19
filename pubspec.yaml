@@ -1,5 +1,6 @@
 name: webart_resource
 version: 0.0.1
+homepage: https://github.com/thislight/webart_resource
 description: A simple way to reorganize resources in your web application
 author: thisLight <l1589002388@gmail.com>
 environment:
